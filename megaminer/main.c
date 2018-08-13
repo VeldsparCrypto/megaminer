@@ -1752,13 +1752,13 @@ int main(int argc, const char * argv[]) {
             }
             if (strcmp(argv[idx], "--threads") == 0) {
                 // now grab the parameter for threads if the argc is high enough
-                if (idx+1 >= argc) {
+                if (idx+1 <= argc) {
                     threadCount = atoi(argv[idx+1]);
                 }
             }
             if (strcmp(argv[idx], "--address") == 0) {
                 // now grab the parameter for threads if the argc is high enough
-                if (idx+1 >= argc) {
+                if (idx+1 <= argc) {
                     address = argv[idx+1];
                     
                     // I guess we should check the users haven't done something stupid!
