@@ -1788,6 +1788,11 @@ int main(int argc, const char * argv[]) {
             }
         }
     }
+  
+    if(address == NULL) {
+      printf("No address specified");
+      exit(0);
+    }
     
     printf("Setting up random seed\n");
     srand((uint32_t)rdtsc());
