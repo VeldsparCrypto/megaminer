@@ -366,6 +366,7 @@ void SHA512(const uint8_t *in, size_t n, uint8_t out[SHA512_DIGEST_LENGTH]) {
 #pragma comment(lib, "Ws2_32.lib")
 #elif _LINUX
 #include <sys/socket.h>
+#include <netinet/in.h>
 #elif __FreeBSD__
 #include <sys/socket.h>
 #include <netinet/in.h>
