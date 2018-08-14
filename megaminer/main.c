@@ -372,6 +372,7 @@ void SHA512(const uint8_t *in, size_t n, uint8_t out[SHA512_DIGEST_LENGTH]) {
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <netinet/ip.h> /* superset of previous */
+#include <netdb.h>
 #elif __FreeBSD__
 #include <sys/socket.h>
 #include <netinet/in.h>
