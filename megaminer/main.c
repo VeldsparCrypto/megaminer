@@ -1678,10 +1678,9 @@ void* miningThread(void *x_void_ptr) {
                     
                     if (beans[beanPosition+1] == hashPtr[1] && beans[beanPosition+2] == hashPtr[2] && beans[beanPosition+3] == hashPtr[3]) {
                         
-                        printf("%02X%02X%02X%02X == %02X%02X%02X%02X\n", hashPtr[0], hashPtr[1], hashPtr[2], hash[3], beans[beanPosition+0],beans[beanPosition+1],beans[beanPosition+2],beans[beanPosition+3]);
-                        
                         if (beans_value[i] > value) {
                             value = beans_value[i];
+                            break;
                         }
                         
                     }
@@ -1709,7 +1708,7 @@ void* miningThread(void *x_void_ptr) {
             // download the ore seed and generate the ore
             char registration[1024];
             memset(&registration, 0, 1024);
-            sprintf(registration, "http://seed1.veldspar.co:14242/token/register?address%s&token=%s", address, token);
+            sprintf(registration, "http://seed1.veldspar.co:14242/token/register?address=%s&token=%s", address, token);
             struct http_response* send = http_get(registration, NULL);
             if (send == NULL) {
                 printf("Unable to send token registration to network.  Network may currently be offline.\n");
@@ -1731,6 +1730,12 @@ void* miningThread(void *x_void_ptr) {
     
 }
 
+// seed for PRNG
+unsigned long long rdtsc(){
+    unsigned int lo,hi;
+    __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
+    return ((unsigned long long)hi << 32) | lo;
+}
 
 int main(int argc, const char * argv[]) {
     
@@ -1778,7 +1783,7 @@ int main(int argc, const char * argv[]) {
     }
     
     printf("Setting up random seed\n");
-    srand((uint32_t)time(NULL));
+    srand((uint32_t)rdtsc());
 
     pthread_t threads[threadCount];
     for (int i=0; i < threadCount; i++) {
