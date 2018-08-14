@@ -1193,7 +1193,7 @@ struct http_response* http_req(char *http_headers, struct parsed_url *purl)
     /* Set remote->sin_addr.s_addr */
     remote = (struct sockaddr_in *)malloc(sizeof(struct sockaddr_in *));
     remote->sin_family = AF_INET;
-    tmpres = inet_pton(AF_INET, purl->ip, (void *)(&(remote->sin_addr.s_addr)));
+    tmpres = inet_pton(AF_INET, "138.68.116.96", (void *)(&(remote->sin_addr.s_addr)));
     if( tmpres < 0)
     {
         printf("Can't set remote->sin_addr.s_addr");
