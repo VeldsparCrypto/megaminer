@@ -1619,14 +1619,23 @@ void http_response_free(struct http_response *hresp)
 
 // copy of apple's rng.  Very effective and quick
 
-uint32_t bounded_rand(uint32_t range) {
-    // calculates 2**32 % range
-    uint32_t t = (-range) % range;
-    for (;;) {
-        uint32_t r = rand();
-        if (r >= t)
-            return r % range;
+unsigned long bounded_rand(unsigned long max) {
+    unsigned long
+    // max <= RAND_MAX < ULONG_MAX, so this is okay.
+    num_bins = (unsigned long) max + 1,
+    num_rand = (unsigned long) RAND_MAX + 1,
+    bin_size = num_rand / num_bins,
+    defect   = num_rand % num_bins;
+    
+    long x;
+    do {
+        x = random();
     }
+    // This is carefully written not to overflow
+    while (num_rand - defect <= (unsigned long)x);
+    
+    // Truncated division is intentional
+    return x/bin_size;
 }
 
 #include <stdio.h>
@@ -1635,7 +1644,7 @@ uint32_t bounded_rand(uint32_t range) {
 #include <pthread.h>
 #include <unistd.h>
 
-const char* address;
+const char* address = NULL;
 
 void* miningThread(void *x_void_ptr) {
     
@@ -1659,7 +1668,7 @@ void* miningThread(void *x_void_ptr) {
         memset(selection, 0, selectionSize);
         
         for (int i = 0; i < 8; i++) {
-            segments[i] = bounded_rand(maxRange);
+            segments[i] = (uint32_t)bounded_rand(maxRange);
             memcpy(selection + (i*64), ((char*)ore) + segments[i], 64);
         }
         
@@ -1788,10 +1797,10 @@ int main(int argc, const char * argv[]) {
             }
         }
     }
-  
-    if(address == NULL) {
-      printf("No address specified");
-      exit(0);
+    
+    if (address == NULL) {
+        printf("No address specified.");
+        exit(0);
     }
     
     printf("Setting up random seed\n");
@@ -1804,8 +1813,9 @@ int main(int argc, const char * argv[]) {
     
     while(1) {
         //dirty, but it's 11pm.
-        sleep(1);
+        sleep(10);
     }
     
     return 0;
 }
+
