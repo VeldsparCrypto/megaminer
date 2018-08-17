@@ -1804,7 +1804,7 @@ unsigned long long rdtsc(){
 int main(int argc, const char * argv[]) {
     
     // insert code here...
-    printf("Veldspar MegaMiner v0.0.7 - Frankenstein's Monster Edition\n");
+    printf("Veldspar MegaMiner v0.0.8 - Frankenstein's Monster Edition\n");
     printf("----------------------------------------------------------\n");
     printf("\n");
     
