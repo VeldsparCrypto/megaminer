@@ -10,6 +10,13 @@
  *  All the veldspar defines go here.
  */
 
+#ifdef __linux__
+#define __POSIX_OS__
+#elif __APPLE__
+#define __POSIX_OS__
+#endif // __linux__
+
+
 /*
  * sha512.c - mbed TLS (formerly known as PolarSSL) implementation of SHA512
  *
@@ -360,6 +367,7 @@ void SHA512(const uint8_t *in, size_t n, uint8_t out[SHA512_DIGEST_LENGTH]) {
 #include <string.h>
 #include <ctype.h>
 #ifdef _WIN32
+#pragma warning(disable:4996)
 #include <winsock2.h>
 #include <ws2tcpip.h>
 #include <stdio.h>
@@ -1633,7 +1641,13 @@ unsigned long bounded_rand(unsigned long max) {
     
     long x;
     do {
-        x = random();
+#ifdef __POSIX_OS__
+		x = random();
+#else
+		x = rand();
+#endif // __POSIX_OS__
+
+        
     }
     // This is carefully written not to overflow
     while (num_rand - defect <= (unsigned long)x);
@@ -1645,12 +1659,18 @@ unsigned long bounded_rand(unsigned long max) {
 #include <stdio.h>
 #include "config.h"
 #include <time.h>
+#ifdef __POSIX_OS__
 #include <pthread.h>
 #include <unistd.h>
+#endif
 
 const char* address = NULL;
 
+#ifdef __POSIX_OS__
 void* miningThread(void *x_void_ptr) {
+#else
+DWORD WINAPI miningThread(LPVOID lpParam) {
+#endif
     
     // where ore is a 1mb selection of random data (static char ore[] = {1,2,3,4 ... etc } )
     // beans is a 36kb buffer of 9000 "beans", of 4 bytes.
@@ -1795,9 +1815,14 @@ unsigned long long rdtsc(){
 #ifdef __arm__
     return (unsigned long long)(time(NULL) & 0xFFFF) | (getpid() << 16);
 #else
+#ifdef __POSIX_OS__
     unsigned int lo,hi;
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return ((unsigned long long)hi << 32) | lo;
+#else
+	// win64 implementation 
+	return (unsigned long long)GetTickCount();
+#endif
 #endif
 }
 
@@ -1853,16 +1878,28 @@ int main(int argc, const char * argv[]) {
     
     printf("Setting up random seed\n");
     srand((uint32_t)rdtsc());
-
+#ifdef __POSIX_OS__
     pthread_t threads[threadCount];
+#else
+	DWORD threadIDs[1024];
+	HANDLE threads[1024];
+#endif
     for (int i=0; i < threadCount; i++) {
         printf("Starting mining thread %i\n", i);
+#ifdef __POSIX_OS__
         pthread_create(&threads[i], NULL, miningThread, NULL);
+#else
+		threads[i] = CreateThread(NULL, 0, miningThread, NULL, 0, &threadIDs[i]);
+#endif
     }
     
     while(1) {
         //dirty, but it's 11pm.
+#ifdef __POSIX_OS__
         sleep(10);
+#else
+		Sleep(10000);
+#endif
     }
     
     return 0;

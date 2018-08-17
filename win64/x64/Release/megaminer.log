@@ -1,0 +1,21 @@
+﻿  main.c
+c:\users\user\documents\github\megaminer\src\main.c(364): warning C4068: unknown pragma
+c:\users\user\documents\github\megaminer\src\main.c(406): warning C4244: 'return': conversion from '__int64' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(512): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(517): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(575): warning C4244: '=': conversion from '__int64' to 'unsigned char', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(767): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(845): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(868): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(912): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(933): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(976): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(998): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(1021): warning C4244: '=': conversion from '__int64' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(1197): warning C4244: '=': conversion from 'SOCKET' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(1232): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+c:\users\user\documents\github\megaminer\src\main.c(1180): warning C4101: 'buf': unreferenced local variable
+  Generating code
+  All 34 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Finished generating code
+  megaminer.vcxproj -> C:\Users\User\Documents\GitHub\megaminer\win64\x64\Release\megaminer.exe
