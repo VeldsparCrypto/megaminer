@@ -373,6 +373,7 @@ void SHA512(const uint8_t *in, size_t n, uint8_t out[SHA512_DIGEST_LENGTH]) {
 #include <netinet/in.h>
 #include <netinet/ip.h> /* superset of previous */
 #include <netdb.h>
+#include <fcntl.h>
 #elif __FreeBSD__
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -383,6 +384,7 @@ void SHA512(const uint8_t *in, size_t n, uint8_t out[SHA512_DIGEST_LENGTH]) {
 #include <netinet/in.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <fcntl.h>
 #else
 #error Platform not suppoted.
 #endif
@@ -1206,6 +1208,8 @@ struct http_response* http_req(char *http_headers, struct parsed_url *purl)
     }
     remote->sin_port = htons(atoi(purl->port));
     
+    /* set an agressive timeout policy */
+
     /* Connect */
     if(connect(sock, (struct sockaddr *)remote, sizeof(struct sockaddr)) < 0)
     {
@@ -1655,13 +1659,20 @@ void* miningThread(void *x_void_ptr) {
     const int maxRange = sizeof(ore) - 64;
     const int selectionSize = 8*64;
     
+    char* immutableOre = malloc(sizeof(ore));
+    memcpy(immutableOre, ore, sizeof(ore));
+    
+    char* threadCache = malloc(1000*1024);
+    memset(threadCache, 0, 1000*1024);
+    int cacheCount = 0;
+    
     // so the miner basically has to loop constantly, hashing random points in the ore.
     while (1) {
         
         uint32_t value = 0;
         uint32_t segments[8];
-        uint32_t oreBlock = 0;
-        uint16_t minerVer = 2;
+        static uint32_t oreBlock = 0;
+        static uint16_t minerVer = 2;
 
         // fetch 8 random 64 byte segments from within the ore
         uint8_t *selection = malloc(selectionSize);
@@ -1669,7 +1680,7 @@ void* miningThread(void *x_void_ptr) {
         
         for (int i = 0; i < 8; i++) {
             segments[i] = (uint32_t)bounded_rand(maxRange);
-            memcpy(selection + (i*64), ((char*)ore) + segments[i], 64);
+            memcpy(selection + (i*64), ((char*)immutableOre) + segments[i], 64);
         }
         
         // now hash it to see if we start within range
@@ -1689,8 +1700,6 @@ void* miningThread(void *x_void_ptr) {
                 while (memchr(hashPtr, beans[beanPosition], ((hash + SHA512_DIGEST_LENGTH) - hashPtr))) {
                     
                     hashPtr = memchr(hashPtr, beans[beanPosition], ((hash + SHA512_DIGEST_LENGTH) - hashPtr));
-                    
-                    // printf("%02X%02X%02X%02X == %02X%02X%02X%02X\n", hashPtr[0], hashPtr[1], hashPtr[2], hash[3], beans[beanPosition+0],beans[beanPosition+1],beans[beanPosition+2],beans[beanPosition+3]);
                     
                     if (beans[beanPosition+1] == hashPtr[1] && beans[beanPosition+2] == hashPtr[2] && beans[beanPosition+3] == hashPtr[3]) {
                         
@@ -1718,8 +1727,19 @@ void* miningThread(void *x_void_ptr) {
             // we found a token, so create the address.
             char token[96];
             sprintf(token,"%08X-%04X-%08X-%08X-%08X-%08X-%08X-%08X-%08X-%08X-%08X", oreBlock, minerVer, value, segments[0], segments[1], segments[2], segments[3], segments[4], segments[5], segments[6], segments[7]);
-            printf("Found token: %s\n", token);
-            printf("Value: %f\n", (((float)value) / 100.0f));
+            
+            time_t timer;
+            char buffer[26];
+            struct tm* tm_info;
+            
+            time(&timer);
+            tm_info = localtime(&timer);
+            
+            strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
+            puts(buffer);
+            
+            printf("[%s] Found token: %s\n", buffer, token);
+            printf("[%s] Value: %f\n", buffer, (((float)value) / 100.0f));
             
             // download the ore seed and generate the ore
             char registration[1024];
@@ -1727,13 +1747,37 @@ void* miningThread(void *x_void_ptr) {
             sprintf(registration, "http://seed1.veldspar.co:14242/token/register?address=%s&token=%s", address, token);
             struct http_response* send = http_get(registration, NULL);
             if (send == NULL) {
-                printf("Unable to send token registration to network.  Network may currently be offline.\n");
+                printf("Unable to send token registration to network.  Network may currently be offline.\nCaching the find and will retry submission later.  Do not close the miner of cache will be lost.\n");
+                if (cacheCount < 999) {
+                    memcpy(threadCache+(cacheCount*1024), registration, 1024);
+                    cacheCount++;
+                }
             } else {
                 printf("Token sent to the network for registration.\n");
                 if (strstr(send->body, "\"success\":true")) {
                     printf("Token successfully registered :) \n");
                 } else {
                     printf("Token already registered :( \n");
+                }
+                if (cacheCount) {
+                    while(cacheCount) {
+                        char registration[1024];
+                        memset(&registration, 0, 1024);
+                        memcpy(&registration, threadCache+((cacheCount-1)*1024), 1024);
+                        struct http_response* send = http_get(registration, NULL);
+                        if (send == NULL) {
+                            break;
+                        } else {
+                            printf("Token sent to the network for registration.\n");
+                            if (strstr(send->body, "\"success\":true")) {
+                                printf("Token successfully registered :) \n");
+                            } else {
+                                printf("Token already registered :( \n");
+                            }
+                        }
+                        cacheCount--;
+                        memset(threadCache+(cacheCount*1024), 0, 1024);
+                    }
                 }
             }
             
@@ -1748,9 +1792,13 @@ void* miningThread(void *x_void_ptr) {
 
 // seed for PRNG
 unsigned long long rdtsc(){
+#ifdef __arm__
+    return (unsigned long long)(time(NULL) & 0xFFFF) | (getpid() << 16)
+#else
     unsigned int lo,hi;
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return ((unsigned long long)hi << 32) | lo;
+#endif
 }
 
 int main(int argc, const char * argv[]) {
@@ -1784,12 +1832,12 @@ int main(int argc, const char * argv[]) {
                     
                     // I guess we should check the users haven't done something stupid!
                     if (address[0] != 'V' || address[1] != 'E') {
-                        printf("Incorrect address specified.");
+                        printf("Incorrect address specified.\n");
                         exit(0);
                     }
                     
                     if (strlen(address) != 46) {
-                        printf("Incorrect address specified.");
+                        printf("Incorrect address specified.\n");
                         exit(0);
                     }
                     
@@ -1808,6 +1856,7 @@ int main(int argc, const char * argv[]) {
 
     pthread_t threads[threadCount];
     for (int i=0; i < threadCount; i++) {
+        printf("Starting mining thread %i\n", i);
         pthread_create(&threads[i], NULL, miningThread, NULL);
     }
     
