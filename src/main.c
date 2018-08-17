@@ -1748,9 +1748,13 @@ void* miningThread(void *x_void_ptr) {
 
 // seed for PRNG
 unsigned long long rdtsc(){
+#ifdef __arm__
+    return (unsigned long long)(time(NULL) & 0xFFFF) | (getpid() << 16)
+#else
     unsigned int lo,hi;
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return ((unsigned long long)hi << 32) | lo;
+#endif
 }
 
 int main(int argc, const char * argv[]) {
