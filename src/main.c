@@ -1746,12 +1746,12 @@ void* miningThread(void *x_void_ptr) {
     
 }
 
-// seed for PRNG
-unsigned long long rdtsc(){
+// seed for PRNG (x86 processors)
+/*unsigned long long rdtsc(){
     unsigned int lo,hi;
     __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
     return ((unsigned long long)hi << 32) | lo;
-}
+}/*
 
 int main(int argc, const char * argv[]) {
     
@@ -1804,7 +1804,7 @@ int main(int argc, const char * argv[]) {
     }
     
     printf("Setting up random seed\n");
-    srand((uint32_t)rdtsc());
+    srand((time(NULL) & 0xFFFF) | (getpid() << 16));
 
     pthread_t threads[threadCount];
     for (int i=0; i < threadCount; i++) {
