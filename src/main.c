@@ -1170,6 +1170,31 @@ struct http_response* handle_redirect_post(struct http_response* hresp, char* cu
  */
 struct http_response* http_req(char *http_headers, struct parsed_url *purl)
 {
+
+#ifndef __POSIX_OS__
+	static BOOL winStartup = FALSE;
+	if (!winStartup) {
+
+		winStartup = TRUE;
+
+		WORD wVersionRequested;
+		WSADATA wsaData;
+		int err;
+
+		/* Use the MAKEWORD(lowbyte, highbyte) macro declared in Windef.h */
+		wVersionRequested = MAKEWORD(2, 2);
+
+		err = WSAStartup(wVersionRequested, &wsaData);
+		if (err != 0) {
+			/* Tell the user that we could not find a usable */
+			/* Winsock DLL.                                  */
+			printf("WSAStartup failed with error: %d\n", err);
+			return NULL;
+		}
+
+	}
+#endif
+
     /* Parse url */
     if(purl == NULL)
     {
@@ -1242,14 +1267,14 @@ struct http_response* http_req(char *http_headers, struct parsed_url *purl)
     }
     
     /* Recieve into response*/
-    char *response = (char*)malloc(0);
-    char BUF[BUFSIZ];
+    char *response = NULL;
+    char BUF[128*1024];
+	int bufPtr = 0;
+	memset(&BUF, 0, sizeof(BUF));
     size_t recived_len = 0;
-    while((recived_len = recv(sock, BUF, BUFSIZ-1, 0)) > 0)
+    while((recived_len = recv(sock, BUF+bufPtr, BUFSIZ-1, 0)) > 0)
     {
-        BUF[recived_len] = '\0';
-        response = (char*)realloc(response, strlen(response) + strlen(BUF) + 1);
-        sprintf(response, "%s%s", response, BUF);
+		bufPtr += recived_len;
     }
     if (recived_len < 0)
     {
@@ -1264,7 +1289,8 @@ struct http_response* http_req(char *http_headers, struct parsed_url *purl)
     }
     
     /* Reallocate response */
-    response = (char*)realloc(response, strlen(response) + 1);
+    response = (char*)malloc(bufPtr);
+	memcpy(response, BUF, bufPtr + 1);
     
     /* Close socket */
 #ifdef _WIN32
