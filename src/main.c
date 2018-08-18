@@ -16,6 +16,9 @@
 #define __POSIX_OS__
 #endif // __linux__
 
+#ifndef __POSIX_OS__
+#define _CRT_RAND_S 
+#endif
 
 /*
  * sha512.c - mbed TLS (formerly known as PolarSSL) implementation of SHA512
@@ -1632,7 +1635,8 @@ void http_response_free(struct http_response *hresp)
 // copy of apple's rng.  Very effective and quick
 
 unsigned long bounded_rand(unsigned long max) {
-    unsigned long
+#ifdef __POSIX_OS__
+	unsigned long
     // max <= RAND_MAX < ULONG_MAX, so this is okay.
     num_bins = (unsigned long) max + 1,
     num_rand = (unsigned long) RAND_MAX + 1,
@@ -1641,19 +1645,26 @@ unsigned long bounded_rand(unsigned long max) {
     
     long x;
     do {
-#ifdef __POSIX_OS__
-		x = random();
-#else
-		x = rand();
-#endif // __POSIX_OS__
-
-        
+		x = random();        
     }
     // This is carefully written not to overflow
     while (num_rand - defect <= (unsigned long)x);
     
     // Truncated division is intentional
     return x/bin_size;
+#else
+	// shitty windows can't do anything right
+	unsigned int    number;
+	errno_t         err;
+	err = rand_s(&number);
+	if (err != 0)
+	{
+		printf("The rand_s function failed!\n");
+		exit(0);
+	}
+	return  (unsigned long long)(((double)number / ((double)UINT_MAX + 1) * max) + 1);
+#endif // __POSIX_OS__
+
 }
 
 #include <stdio.h>
