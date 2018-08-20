@@ -1866,8 +1866,15 @@ unsigned long long rdtsc(){
 int main(int argc, const char * argv[]) {
     
     // insert code here...
-    printf("Veldspar MegaMiner v0.0.8 - Frankenstein's Monster Edition\n");
-    printf("----------------------------------------------------------\n");
+    printf("                                _\n");
+    printf("  /\\/\\   ___  __ _  __ _  /\\/\\ (_)_ __   ___ _ __\n");
+    printf(" /    \\ / _ \\/ _` |/ _` |/    \\| | '_ \\ / _ \\ '__|\n");
+    printf("/ /\\/\\ \\  __/ (_| | (_| / /\\/\\ \\ | | | |  __/ |\n");
+    printf("\\/    \\/\\___|\\__, |\\__,_\\/    \\/_|_| |_|\\___|_|\n");
+    printf("              |___/                         v0.0.9\n");
+    printf("\n");
+    printf("          Frankenstein's Monster Edition\n");
+    printf("--------------------------------------------------\n");
     printf("\n");
     
     int threadCount = 4;
