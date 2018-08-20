@@ -1795,8 +1795,8 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
             strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
             puts(buffer);
             
-            printf("[%s] Found token: %s\n", buffer, token);
-            printf("[%s] Value: %f\n", buffer, (((float)value) / 100.0f));
+            printf("[%s] Found token: " "\033[0;35m" "%s" "\033[0m" "\n", buffer, token);
+            printf("[%s] Value: " "\033[0;33m" "%f" "\033[0m" "\n", buffer, (((float)value) / 100.0f));
             
             // download the ore seed and generate the ore
             char registration[1024];
@@ -1812,9 +1812,9 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
             } else {
                 printf("Token sent to the network for registration.\n");
                 if (strstr(send->body, "\"success\":true")) {
-                    printf("Token successfully registered :) \n");
+                    printf("\033[0;32m" "Token successfully registered :)" "\033[0m" "\n");
                 } else {
-                    printf("Token already registered :( \n");
+                    printf("\033[0;31m" "Token already registered :(" "\033[0m" "\n");
                 }
                 if (cacheCount) {
                     while(cacheCount) {
@@ -1866,8 +1866,15 @@ unsigned long long rdtsc(){
 int main(int argc, const char * argv[]) {
     
     // insert code here...
-    printf("Veldspar MegaMiner v0.0.8 - Frankenstein's Monster Edition\n");
-    printf("----------------------------------------------------------\n");
+    printf("                                _\n");
+    printf("  /\\/\\   ___  __ _  __ _  /\\/\\ (_)_ __   ___ _ __\n");
+    printf(" /    \\ / _ \\/ _` |/ _` |/    \\| | '_ \\ / _ \\ '__|\n");
+    printf("/ /\\/\\ \\  __/ (_| | (_| / /\\/\\ \\ | | | |  __/ |\n");
+    printf("\\/    \\/\\___|\\__, |\\__,_\\/    \\/_|_| |_|\\___|_|\n");
+    printf("              |___/                         v0.0.9\n");
+    printf("\n");
+    printf("          Frankenstein's Monster Edition\n");
+    printf("--------------------------------------------------\n");
     printf("\n");
     
     int threadCount = 4;
