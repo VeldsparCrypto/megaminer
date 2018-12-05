@@ -19,14 +19,14 @@
 #endif
 
 // define the algo specs
-int version = 0;
+int version = 1;
 int oreSize = 1024*1024;
 const unsigned char oreSeed[56] = { 48,102,99,98,98,56,57,53,49,102,100,48,53,50,55,54,52,102,55,49,97,54,51,52,98,48,50,51,54,49,52,52,56,51,56,54,99,53,98,48,102,55,48,101,97,100,98,55,49,54,99,99,48,102,51,102 };
 unsigned char magicChar = 255;
-int requiredDepth = 1;
+int requiredDepth = 2;
 int distributionSize = 21;
 int distribution[21] = {1,1,1,2,2,2,5,5,5,10,10,20,20,50,50,100,200,500,1000,2000,5000};
-int beanBytes = 1;
+int beanBytes = 2;
 int segmentsCount = 3;
 float miningLimit = 9999999.99;
 float totalMined = 0.0;
@@ -98,11 +98,13 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
                 }
                 
                 free(beanHash);
+                free(beanSource);
                 
                 void* beans = malloc(distributionSize*beanBytes);
+                memset(beans, 0, distributionSize*beanBytes);
                 int ptr = SHA512_DIGEST_LENGTH*5;
                 for (int i=1; i<=distributionSize; i++) {
-                    memcpy(beans, beanSource + (ptr - (beanBytes*i)), beanBytes);
+                    memcpy(beans+((i-1)*beanBytes), beanSource + (ptr - (beanBytes*i)), beanBytes);
                 }
                 
                 // now loop through, attempting to find a valid bean within this round
@@ -123,6 +125,8 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
                     }
                     free(bean);
                 }
+                
+                free(beans);
                 
                 if (beanFound != NULL) {
                     
@@ -197,15 +201,28 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
     
 }
 
+// http://www.concentric.net/~Ttwang/tech/inthash.htm
+unsigned long mix(unsigned long a, unsigned long b, unsigned long c)
+{
+    a=a-b;  a=a-c;  a=a^(c >> 13);
+    b=b-c;  b=b-a;  b=b^(a << 8);
+    c=c-a;  c=c-b;  c=c^(b >> 13);
+    a=a-b;  a=a-c;  a=a^(c >> 12);
+    b=b-c;  b=b-a;  b=b^(a << 16);
+    c=c-a;  c=c-b;  c=c^(b >> 5);
+    a=a-b;  a=a-c;  a=a^(c >> 3);
+    b=b-c;  b=b-a;  b=b^(a << 10);
+    c=c-a;  c=c-b;  c=c^(b >> 15);
+    return c;
+}
+    
 // seed for PRNG
 unsigned long long rdtsc(){
 #ifdef __arm__
     return (unsigned long long)(time(NULL) & 0xFFFF) | (getpid() << 16);
 #else
 #ifdef __POSIX_OS__
-    unsigned int lo,hi;
-    __asm__ __volatile__ ("rdtsc" : "=a" (lo), "=d" (hi));
-    return ((unsigned long long)hi << 32) | lo;
+    return mix(clock(), time(NULL), getpid());
 #else
 	// win64 implementation 
 	return (unsigned long long)GetTickCount();
@@ -285,7 +302,8 @@ int main(int argc, const char * argv[]) {
     }
     
     printf("Setting up random seed\n");
-    srand((uint32_t)rdtsc());
+    uint32_t s = (uint32_t)rdtsc();
+    srand(s);
     
     printf("Generating ore\n");
     int size = 0;
