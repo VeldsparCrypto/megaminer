@@ -70,6 +70,14 @@
             argument = "VE3DuTf92JRLE26qDXC2y1tyPdmKbk5XcbRg6VXGghxQAi"
             isEnabled = "YES">
          </CommandLineArgument>
+         <CommandLineArgument
+            argument = "--threads"
+            isEnabled = "YES">
+         </CommandLineArgument>
+         <CommandLineArgument
+            argument = "1"
+            isEnabled = "YES">
+         </CommandLineArgument>
       </CommandLineArguments>
       <AdditionalOptions>
       </AdditionalOptions>
