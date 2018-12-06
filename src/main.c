@@ -21,14 +21,15 @@
 // define the algo specs
 int version = 1;
 int oreSize = 1024*1024;
-const unsigned char oreSeed[56] = { 48,102,99,98,98,56,57,53,49,102,100,48,53,50,55,54,52,102,55,49,97,54,51,52,98,48,50,51,54,49,52,52,56,51,56,54,99,53,98,48,102,55,48,101,97,100,98,55,49,54,99,99,48,102,51,102 };
+const unsigned char oreSeed[56] = { 48,102,99,98,98,56,57,53,49,102,100,48,53,50,55,54,52,102,55,49,97,54,51,52,98,48,50,51,54,49,52,52,56,51,56,54,99,53,98,48,102,55,48,101,97,100,98,55,49,54,99,99,48,102,51,102};
 unsigned char magicChar = 255;
 int requiredDepth = 2;
 int distributionSize = 21;
 int distribution[21] = {1,1,1,2,2,2,5,5,5,10,10,20,20,50,50,100,200,500,1000,2000,5000};
 int beanBytes = 2;
 int segmentsCount = 3;
-float miningLimit = 9999999.99;
+int hashSearchLength = 32;
+float miningLimit = 0.0;
 float totalMined = 0.0;
 char* nodeAddress = NULL;
 
@@ -113,7 +114,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
                     void* bean = malloc(beanBytes);
                     memcpy(bean, beans+(i*beanBytes), beanBytes);
                     // now look through to see if this bean is in the hash
-                    for (int ptr=0; ptr < SHA512_DIGEST_LENGTH; ptr++) {
+                    for (int ptr=0; ptr < hashSearchLength; ptr++) {
                         if(memcmp(bean, hash+ptr, beanBytes) == 0) {
                             beanFound = malloc(beanBytes);
                             memcpy(beanFound, bean, beanBytes);
@@ -185,11 +186,16 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
                 printf("Unable to send token registration to network.  Network may currently be offline.\n");
             } else {
                 printf("Token sent to the network for registration.\n");
-                totalMined += (((float)currentValue) / 100.0f);
+                if (miningLimit) {
+                    totalMined += (((float)currentValue) / 100.0f);
+                }
+                
             }
             
-            if (totalMined >= miningLimit) {
-                exit(0);
+            if (miningLimit) {
+                if (totalMined >= miningLimit) {
+                    exit(0);
+                }
             }
             
         }
