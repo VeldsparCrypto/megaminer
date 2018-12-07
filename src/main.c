@@ -40,6 +40,21 @@ char* nodeAddress = NULL;
 void* ore = NULL;
 
 const char* address = NULL;
+static unsigned int hashesSec = 0;
+
+#ifdef __POSIX_OS__
+#include <pthread.h>
+
+/* This is the critical section object (statically allocated). */
+static pthread_mutex_t stats_mutex;
+
+#else
+// windows land
+CRITICAL_SECTION stats_mutex;
+
+#endif
+
+
 
 #ifdef __POSIX_OS__
 void* miningThread(void *x_void_ptr) {
@@ -55,9 +70,24 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
     
     char* immutableOre = malloc(oreSize);
     memcpy(immutableOre, ore, oreSize);
+    int iterations = 0;
     
     // so the miner basically has to loop constantly, hashing random points in the ore.
     while (1) {
+        
+        iterations++;
+        if (iterations == 100) {
+            iterations = 0;
+#ifdef __POSIX_OS__
+            pthread_mutex_lock( &stats_mutex );
+            hashesSec += 100;
+            pthread_mutex_unlock( &stats_mutex );
+#else
+            EnterCriticalSection(&stats_mutex);
+            hashesSec += 100;
+            LeaveCriticalSection(&stats_mutex);
+#endif
+        }
         
         uint32_t segments[segmentsCount];
 
@@ -267,7 +297,7 @@ int main(int argc, const char * argv[]) {
                 printf("--------\n");
                 printf("--address       : Veldspar wallet address, looks like 'VE4DuSf92FRLE26qDXC2y1tyPdmKbk5XcbRg6VXGghxQAi'\n");
                 printf("--threads       : Number of threads to abuse\n\n");
-                printf("--node          : The address of the node, e.g. 127.0.0.1:14242\n\n");
+                printf("--node          : The address of the node, e.g. public.veldspar.co:14242\n\n");
                 exit(0);
             }
             if (strcmp(argv[idx], "--threads") == 0) {
@@ -344,7 +374,9 @@ int main(int argc, const char * argv[]) {
     
 #ifdef __POSIX_OS__
     pthread_t threads[threadCount];
+    pthread_mutex_init(&stats_mutex, NULL);
 #else
+    InitializeCriticalSection(&stats_mutex);
 	DWORD threadIDs[1024];
 	HANDLE threads[1024];
 #endif
@@ -360,10 +392,36 @@ int main(int argc, const char * argv[]) {
     while(1) {
         //dirty, but it's 11pm.
 #ifdef __POSIX_OS__
-        sleep(10);
+        sleep(1);
 #else
-		Sleep(10000);
+		Sleep(1000);
 #endif
+        
+        // now report the stats because people love to see numbers!
+        unsigned int rate = 0;
+#ifdef __POSIX_OS__
+        pthread_mutex_lock( &stats_mutex );
+        rate = hashesSec;
+        hashesSec = 0;
+        pthread_mutex_unlock( &stats_mutex );
+#else
+        EnterCriticalSection(&stats_mutex);
+        rate = hashesSec;
+        hashesSec = 0;
+        LeaveCriticalSection(&stats_mutex);
+#endif
+        
+        if (rate < 1000) {
+            // h/s
+            printf("Hash rate: %u h/s\n", rate);
+        } else if (rate < 1000000) {
+            // kh/s
+            printf("Hash rate: %f Kh/s\n", ((double)rate / 1000.0));
+        } else {
+            // mh/s
+            printf("Hash rate: %f Mh/s\n", ((double)rate / 1000000.0));
+        }
+        
     }
     
     return 0;
