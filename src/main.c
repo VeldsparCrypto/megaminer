@@ -28,9 +28,12 @@ int distributionSize = 21;
 int distribution[21] = {1,1,1,2,2,2,5,5,5,10,10,20,20,50,50,100,200,500,1000,2000,5000};
 int beanBytes = 2;
 int segmentsCount = 3;
-int hashSearchLength = 32;
+int hashSearchLength = 28;
 float miningLimit = 0.0;
 float totalMined = 0.0;
+float aveValue = 0.0;
+float ticks = 0.0;
+
 char* nodeAddress = NULL;
 
 // define the ore
@@ -159,6 +162,10 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
         }
         
         if (currentDepth == requiredDepth && currentValue != 0) {
+            
+            aveValue += (float)currentValue;
+            ticks += 1.0;
+            printf("average token value = %f\n", ((aveValue / ticks) / 100));
             
             // we have a find, throw it out to the server for registration
             char token[96];
