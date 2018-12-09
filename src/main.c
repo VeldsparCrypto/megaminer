@@ -28,7 +28,7 @@ int distributionSize = 21;
 int distribution[21] = {1,1,1,2,2,2,5,5,5,10,10,20,20,50,50,100,200,500,1000,2000,5000};
 int beanBytes = 2;
 int segmentsCount = 3;
-int hashSearchLength = 28;
+int hashSearchLength = 20;
 float miningLimit = 0.0;
 float totalMined = 0.0;
 float aveValue = 0.0;
@@ -37,7 +37,7 @@ float ticks = 0.0;
 char* nodeAddress = NULL;
 
 // define the ore
-void* ore = NULL;
+unsigned char* ore = NULL;
 
 const char* address = NULL;
 static unsigned int hashesSec = 0;
@@ -89,7 +89,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
 #endif
         }
         
-        uint32_t segments[segmentsCount];
+        uint32_t segments[3];
 
         // fetch 8 random 64 byte segments from within the ore
         uint8_t *selection = malloc(selectionSize);
@@ -115,7 +115,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
                 
                 currentValue = 0;
                 
-                void* beanSource = malloc(SHA512_DIGEST_LENGTH*5);
+                unsigned char* beanSource = malloc(SHA512_DIGEST_LENGTH*5);
                 
                 // now hash the hash
                 uint8_t *beanHash = malloc(SHA512_DIGEST_LENGTH);
@@ -134,7 +134,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
                 free(beanHash);
                 free(beanSource);
                 
-                void* beans = malloc(distributionSize*beanBytes);
+				unsigned char* beans = malloc(distributionSize*beanBytes);
                 memset(beans, 0, distributionSize*beanBytes);
                 int ptr = SHA512_DIGEST_LENGTH*5;
                 for (int i=1; i<=distributionSize; i++) {

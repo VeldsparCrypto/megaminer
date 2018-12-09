@@ -19,9 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\config.h" />
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\src\main.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
