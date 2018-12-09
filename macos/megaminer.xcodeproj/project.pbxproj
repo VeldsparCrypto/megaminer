@@ -23,8 +23,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		3A86523A21B3456300A69943 /* sha512.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = sha512.h; sourceTree = "<group>"; };
+		3A86523B21B3457000A69943 /* http.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = http.h; sourceTree = "<group>"; };
+		3A86523C21B3BB5D00A69943 /* rand.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = rand.h; sourceTree = "<group>"; };
 		3AFF7078212301F300D31946 /* megaminer */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = megaminer; sourceTree = BUILT_PRODUCTS_DIR; };
-		3AFF70832123021500D31946 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
 		3AFF70842123021500D31946 /* main.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = main.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -58,8 +60,10 @@
 		3AFF70822123021500D31946 /* src */ = {
 			isa = PBXGroup;
 			children = (
-				3AFF70832123021500D31946 /* config.h */,
 				3AFF70842123021500D31946 /* main.c */,
+				3A86523A21B3456300A69943 /* sha512.h */,
+				3A86523B21B3457000A69943 /* http.h */,
+				3A86523C21B3BB5D00A69943 /* rand.h */,
 			);
 			name = src;
 			path = ../src;
