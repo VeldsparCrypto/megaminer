@@ -76,7 +76,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
     while (1) {
         
         iterations++;
-        if (iterations == 100) {
+        if (iterations == 10000) {
             iterations = 0;
 #ifdef __POSIX_OS__
             pthread_mutex_lock( &stats_mutex );
@@ -84,7 +84,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
             pthread_mutex_unlock( &stats_mutex );
 #else
             EnterCriticalSection(&stats_mutex);
-            hashesSec += 100;
+            hashesSec += 10000;
             LeaveCriticalSection(&stats_mutex);
 #endif
         }
@@ -199,7 +199,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
             
             // we have a find, throw it out to the server for registration
             char token[96];
-            sprintf(token,"%08X-%04X-%08X-%08X%08X%08X", 0, 0, currentValue, segments[0], segments[1], segments[2]);
+            sprintf(token,"%08X-%04X-%08X-%08X%08X%08X", 0, version, currentValue, segments[0], segments[1], segments[2]);
             
             time_t timer;
             char buffer[26];
@@ -210,10 +210,13 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
             
             strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
             puts(buffer);
-            
+#ifdef __POSIX_OS__
             printf("[%s] Found token: " "\033[0;35m" "%s" "\033[0m" "\n", buffer, token);
             printf("[%s] Value: " "\033[0;33m" "%f" "\033[0m" "\n", buffer, (((float)currentValue) / 100.0f));
-            
+#else
+            printf("[%s] Found token: %s\n", buffer, token);
+            printf("[%s] Value: %f\n", buffer, (((float)currentValue) / 100.0f));
+#endif
             // download the ore seed and generate the ore
             char registration[1024];
             memset(&registration, 0, 1024);
@@ -281,9 +284,9 @@ int main(int argc, const char * argv[]) {
     printf(" /    \\ / _ \\/ _` |/ _` |/    \\| | '_ \\ / _ \\ '__|\n");
     printf("/ /\\/\\ \\  __/ (_| | (_| / /\\/\\ \\ | | | |  __/ |\n");
     printf("\\/    \\/\\___|\\__, |\\__,_\\/    \\/_|_| |_|\\___|_|\n");
-    printf("              |___/                         v0.2.0\n");
+    printf("              |___/                         v0.2.1\n");
     printf("\n");
-    printf("          Dogs Dinner Edition\n");
+    printf("          Cats Bumhole Edition\n");
     printf("--------------------------------------------------\n");
     printf("\n");
     
@@ -392,21 +395,21 @@ int main(int argc, const char * argv[]) {
     while(1) {
         //dirty, but it's 11pm.
 #ifdef __POSIX_OS__
-        sleep(1);
+        sleep(10);
 #else
-		Sleep(1000);
+		Sleep(10000);
 #endif
         
         // now report the stats because people love to see numbers!
         unsigned int rate = 0;
 #ifdef __POSIX_OS__
         pthread_mutex_lock( &stats_mutex );
-        rate = hashesSec;
+        rate = (hashesSec / 10);
         hashesSec = 0;
         pthread_mutex_unlock( &stats_mutex );
 #else
         EnterCriticalSection(&stats_mutex);
-        rate = hashesSec;
+        rate = (hashesSec / 10);
         hashesSec = 0;
         LeaveCriticalSection(&stats_mutex);
 #endif
