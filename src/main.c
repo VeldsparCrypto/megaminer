@@ -199,7 +199,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
             
             // we have a find, throw it out to the server for registration
             char token[96];
-            sprintf(token,"%08X-%04X-%08X-%08X%08X%08X", 0, 0, currentValue, segments[0], segments[1], segments[2]);
+            sprintf(token,"%08X-%04X-%08X-%08X%08X%08X", 0, version, currentValue, segments[0], segments[1], segments[2]);
             
             time_t timer;
             char buffer[26];
@@ -210,10 +210,13 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
             
             strftime(buffer, 26, "%Y-%m-%d %H:%M:%S", tm_info);
             puts(buffer);
-            
+#ifdef __POSIX_OS__
             printf("[%s] Found token: " "\033[0;35m" "%s" "\033[0m" "\n", buffer, token);
             printf("[%s] Value: " "\033[0;33m" "%f" "\033[0m" "\n", buffer, (((float)currentValue) / 100.0f));
-            
+#else
+            printf("[%s] Found token: %s\n", buffer, token);
+            printf("[%s] Value: %f\n", buffer, (((float)currentValue) / 100.0f));
+#endif
             // download the ore seed and generate the ore
             char registration[1024];
             memset(&registration, 0, 1024);
