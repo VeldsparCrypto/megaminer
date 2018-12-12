@@ -358,7 +358,6 @@ char* hostname_to_ip(char *hostname)
     struct hostent *h;
     if ((h=gethostbyname(hostname)) == NULL)
     {
-        printf("gethostbyname");
         return NULL;
     }
     return inet_ntoa(*((struct in_addr *)h->h_addr));

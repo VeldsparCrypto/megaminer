@@ -76,7 +76,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
     while (1) {
         
         iterations++;
-        if (iterations == 100) {
+        if (iterations == 10000) {
             iterations = 0;
 #ifdef __POSIX_OS__
             pthread_mutex_lock( &stats_mutex );
@@ -84,7 +84,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
             pthread_mutex_unlock( &stats_mutex );
 #else
             EnterCriticalSection(&stats_mutex);
-            hashesSec += 100;
+            hashesSec += 10000;
             LeaveCriticalSection(&stats_mutex);
 #endif
         }
@@ -284,9 +284,9 @@ int main(int argc, const char * argv[]) {
     printf(" /    \\ / _ \\/ _` |/ _` |/    \\| | '_ \\ / _ \\ '__|\n");
     printf("/ /\\/\\ \\  __/ (_| | (_| / /\\/\\ \\ | | | |  __/ |\n");
     printf("\\/    \\/\\___|\\__, |\\__,_\\/    \\/_|_| |_|\\___|_|\n");
-    printf("              |___/                         v0.2.0\n");
+    printf("              |___/                         v0.2.1\n");
     printf("\n");
-    printf("          Dogs Dinner Edition\n");
+    printf("          Cats Bumhole Edition\n");
     printf("--------------------------------------------------\n");
     printf("\n");
     
@@ -395,21 +395,21 @@ int main(int argc, const char * argv[]) {
     while(1) {
         //dirty, but it's 11pm.
 #ifdef __POSIX_OS__
-        sleep(1);
+        sleep(10);
 #else
-		Sleep(1000);
+		Sleep(10000);
 #endif
         
         // now report the stats because people love to see numbers!
         unsigned int rate = 0;
 #ifdef __POSIX_OS__
         pthread_mutex_lock( &stats_mutex );
-        rate = hashesSec;
+        rate = (hashesSec / 10);
         hashesSec = 0;
         pthread_mutex_unlock( &stats_mutex );
 #else
         EnterCriticalSection(&stats_mutex);
-        rate = hashesSec;
+        rate = (hashesSec / 10);
         hashesSec = 0;
         LeaveCriticalSection(&stats_mutex);
 #endif
