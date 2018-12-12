@@ -80,7 +80,7 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
             iterations = 0;
 #ifdef __POSIX_OS__
             pthread_mutex_lock( &stats_mutex );
-            hashesSec += 100;
+            hashesSec += 10000;
             pthread_mutex_unlock( &stats_mutex );
 #else
             EnterCriticalSection(&stats_mutex);
@@ -195,7 +195,6 @@ DWORD WINAPI miningThread(LPVOID lpParam) {
             
             aveValue += (float)currentValue;
             ticks += 1.0;
-            printf("average token value = %f\n", ((aveValue / ticks) / 100));
             
             // we have a find, throw it out to the server for registration
             char token[96];
