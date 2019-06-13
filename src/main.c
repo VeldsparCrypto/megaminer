@@ -35,6 +35,7 @@ float aveValue = 0.0;
 float ticks = 0.0;
 
 char* nodeAddress = NULL;
+uint16_t nodePort = 14242;
 
 // define the ore
 unsigned char* ore = NULL;
@@ -285,7 +286,7 @@ int main(int argc, const char * argv[]) {
     printf("\\/    \\/\\___|\\__, |\\__,_\\/    \\/_|_| |_|\\___|_|\n");
     printf("              |___/                         v0.2.2\n");
     printf("\n");
-    printf("          Cats Bumhole Edition\n");
+    printf("          Rabid Rabbit Edition\n");
     printf("--------------------------------------------------\n");
     printf("\n");
     

@@ -51,3 +51,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 *.xcuserstate
+/macos/megaminer.xcodeproj/project.xcworkspace/xcuserdata/adrian.xcuserdatad/UserInterfaceState.xcuserstate
+/.DS_Store
+/macos/.DS_Store

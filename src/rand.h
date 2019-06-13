@@ -11,8 +11,11 @@
 
 uint32_t bounded_rand(uint32_t max) {
 #ifdef __POSIX_OS__
-    uint32_t r = rand() % max;
+    
+    // avoid modulo bias
+    uint32_t r = arc4random_uniform(max);
     return r;
+    
 #else
     // shitty windows can't do anything right
     unsigned int    number;
@@ -29,3 +32,5 @@ uint32_t bounded_rand(uint32_t max) {
 }
 
 #endif /* rand_h */
+
+
