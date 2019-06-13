@@ -18,7 +18,6 @@ uint32_t bounded_rand(uint32_t max) {
     
     // avoid modulo bias
     uint32_t r = arc4random_uniform(max);
-    printf("%d\n", r);
     return r;
     
 #else
