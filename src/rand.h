@@ -9,11 +9,16 @@
 #ifndef rand_h
 #define rand_h
 
+#ifdef __linux__
+#include <bsd/stdlib.h>
+#endif
+
 uint32_t bounded_rand(uint32_t max) {
 #ifdef __POSIX_OS__
     
     // avoid modulo bias
     uint32_t r = arc4random_uniform(max);
+    printf("%d\n", r);
     return r;
     
 #else
